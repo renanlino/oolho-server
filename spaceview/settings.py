@@ -77,10 +77,10 @@ WSGI_APPLICATION = 'spaceview.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'tccdb',
-        'USER': 'django_user',
-        'PASSWORD': '140897hr',
-        'HOST': '127.0.0.1',
+        'NAME': 'd7fglb0ecgolqi',
+        'USER': 'aalpycjicqiopt',
+        'PASSWORD': '0972abedc63898a432e082a4e9bb4dab3b36935622f051e7603eb2f162768254',
+        'HOST': 'ec2-50-17-236-15.compute-1.amazonaws.com',
         'PORT': '5432', # 8000 is default
     }
 }
