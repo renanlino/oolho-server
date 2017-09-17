@@ -76,15 +76,12 @@ WSGI_APPLICATION = 'spaceview.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'd7fglb0ecgolqi',
-        'USER': 'aalpycjicqiopt',
-        'PASSWORD': '0972abedc63898a432e082a4e9bb4dab3b36935622f051e7603eb2f162768254',
-        'HOST': 'ec2-50-17-236-15.compute-1.amazonaws.com',
-        'PORT': '5432', # 8000 is default
     }
 }
 
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
