@@ -10,6 +10,7 @@ class SensorSerializer(serializers.ModelSerializer):
 
 class MovementSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
+
     class Meta:
         model = Movement
         fields = ('id', 'sensor', 'direction', 'received_date',

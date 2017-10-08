@@ -4,6 +4,8 @@ from app.serializers import MovementSerializer, SensorSerializer
 from rest_framework import generics
 from rest_framework import permissions
 from app.permissions import IsOwnerOrReadOnly
+from rest_framework.exceptions import PermissionDenied
+
 
 
 # Create your views here.
@@ -39,7 +41,11 @@ class MovementList(generics.ListCreateAPIView):
         return Movement.objects.filter(owner=user)
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        selectedSensor = Sensor.objects.get(pk=serializer.validated_data.get("sensor").id)
+        if selectedSensor.owner == self.request.user:
+            serializer.save(owner=self.request.user)
+        else:
+            raise PermissionDenied
 
 class MovementDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MovementSerializer
