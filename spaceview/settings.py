@@ -25,7 +25,7 @@ SECRET_KEY = '%1=9^5oq7@@-6k87!(!!#r251uoq*7t)vpbx_5o$%jvtgg*6k&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["gentle-lake-67733.herokuapp.com"]
+ALLOWED_HOSTS = ["gentle-lake-67733.herokuapp.com", "localhost"]
 
 
 # Application definition
@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "app"
+    "app",
+    "rest_framework"
 ]
 
 MIDDLEWARE = [
@@ -81,7 +82,8 @@ DATABASES = {
 }
 
 import dj_database_url
-db_from_env = dj_database_url.config(conn_max_age=500)
+db_from_env = dj_database_url.config(conn_max_age=500,
+    default="postgres://aalpycjicqiopt:0972abedc63898a432e082a4e9bb4dab3b36935622f051e7603eb2f162768254@ec2-50-17-236-15.compute-1.amazonaws.com:5432/d7fglb0ecgolqi")
 DATABASES['default'].update(db_from_env)
 
 # Password validation
