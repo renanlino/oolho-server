@@ -20,7 +20,7 @@ class SensorViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = SensorSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+    permission_classes = (permissions.IsAuthenticated,
                           IsOwnerOrReadOnly,)
 
     def get_queryset(self):
@@ -33,7 +33,7 @@ class SensorViewSet(viewsets.ModelViewSet):
 
 class MovementViewSet(viewsets.ModelViewSet):
     serializer_class = MovementSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+    permission_classes = (permissions.IsAuthenticated,
                             IsOwnerOrReadOnly,)
 
     def get_queryset(self):
