@@ -26,8 +26,8 @@ router.register(r'sensors', views.SensorViewSet, base_name = "sensor")
 # The API URLs are now determined automatically by the router.
 # Additionally, we include the login URLs for the browsable API.
 urlpatterns = [
-    url(r'^api', include(router.urls)),
-    url(r'^dashboard', views.DashboardView.as_view()),
+    url(r'^api/', include(router.urls)),
+    url(r'^dashboard/', views.DashboardView.as_view()),
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^', include('rest_framework.urls', namespace='rest_framework'))
 ]
