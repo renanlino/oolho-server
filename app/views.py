@@ -6,12 +6,10 @@ from app.permissions import IsOwnerOrReadOnly
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import viewsets
 from django.views.generic import TemplateView
-
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here.
-
-class DashboardView(TemplateView):
+class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'app/dashboard.html'
     model = Movement
 

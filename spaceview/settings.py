@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "app",
     "rest_framework",
-    'chartkick'
+    'chartkick',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="col-md-offset-5 col-md-3 pt-3">
+  <div class="form-login">
+    <h2>Bem-vindo!</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Usuário</label>
+        {{ form.username|add_class:"form-control" }}
+        <label>Senha</label>
+        {{ form.password|add_class:"form-control" }}
+      </div>
+    <div class="wrapper">
+      <span class="group-btn">
+        <button class="btn btn-primary btn-md" type="submit">Login</button></br>
+      </span>
+    </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
