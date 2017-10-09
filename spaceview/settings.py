@@ -32,6 +32,11 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100
 }
 
+import chartkick
+STATICFILES_DIRS = (
+    chartkick.js(),
+)
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -42,7 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "app",
-    "rest_framework"
+    "rest_framework",
+    'chartkick'
 ]
 
 MIDDLEWARE = [

@@ -27,6 +27,7 @@ router.register(r'sensors', views.SensorViewSet, base_name = "sensor")
 # Additionally, we include the login URLs for the browsable API.
 urlpatterns = [
     url(r'^', include(router.urls)),
+    url(r'^dashboard', views.DashboardView.as_view()),
     url(r'^', include('rest_framework.urls', namespace='rest_framework'))
 ]
 

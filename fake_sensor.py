@@ -37,6 +37,9 @@ def main():
                 movement["direction"], usersInside))
         response = requests.post("https://gentle-lake-67733.herokuapp.com/movements/",
                         auth=HTTPBasicAuth(user, password), data=movement)
-        print("\t> Status Code: %d (%s)" %(response.status_code, response.text))
+        if response.status_code > 300:
+            print("\t> Status Code: %d (%s)" %(response.status_code, response.text))
+        else:
+            print("\t> Status Code: %d" %(response.status_code))
 
 main()
