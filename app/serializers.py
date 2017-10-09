@@ -9,7 +9,7 @@ class SensorSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Sensor
         fields = ('id', 'display_name', 'created_date',
-            'last_seen', 'owner')
+            'last_seen', 'owner', 'movements')
 
 class MovementSerializer(serializers.HyperlinkedModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
