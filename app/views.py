@@ -5,14 +5,23 @@ from rest_framework import generics
 from rest_framework import permissions
 from app.permissions import IsOwnerOrReadOnly
 from rest_framework.exceptions import PermissionDenied
-
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework import viewsets
 
 
 # Create your views here.
-class SensorList(generics.ListCreateAPIView):
+
+class SensorViewSet(viewsets.ModelViewSet):
+    """
+    This viewset automatically provides `list`, `create`, `retrieve`,
+    `update` and `destroy` actions.
+    """
+
     serializer_class = SensorSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                            IsOwnerOrReadOnly,)
+                          IsOwnerOrReadOnly,)
 
     def get_queryset(self):
         user = self.request.user
@@ -21,17 +30,8 @@ class SensorList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-class SensorDetail(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = SensorSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                            IsOwnerOrReadOnly,)
 
-    def get_queryset(self):
-        user = self.request.user
-        return Sensor.objects.filter(owner=user)
-
-
-class MovementList(generics.ListCreateAPIView):
+class MovementViewSet(viewsets.ModelViewSet):
     serializer_class = MovementSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                             IsOwnerOrReadOnly,)
@@ -46,12 +46,3 @@ class MovementList(generics.ListCreateAPIView):
             serializer.save(owner=self.request.user)
         else:
             raise PermissionDenied
-
-class MovementDetail(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = MovementSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                            IsOwnerOrReadOnly,)
-
-    def get_queryset(self):
-        user = self.request.user
-        return Movement.objects.filter(owner=user)

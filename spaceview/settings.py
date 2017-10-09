@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["gentle-lake-67733.herokuapp.com", "localhost"]
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
+}
 
 # Application definition
 

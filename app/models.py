@@ -9,7 +9,8 @@ class Sensor(models.Model):
     last_seen = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return self.display_name + " (" + str(self.id) + ")"
+        s = "%d: %s (%s)" %(self.id, self.display_name, self.owner)
+        return s
 
 class Movement(models.Model):
     owner = models.ForeignKey('auth.User', related_name='movements', on_delete=models.CASCADE)
@@ -20,4 +21,5 @@ class Movement(models.Model):
     occurrence_date = models.DateTimeField()
 
     def __str__(self):
-        return self.direction + " @ " + str(self.sensor_id)
+        s = "%d: %s @ %s (%d)" %(self.id, self.direction, self.sensor.display_name, self.sensor.id)
+        return s

@@ -15,13 +15,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.conf.urls import url, include
+from app import views
+from rest_framework.routers import DefaultRouter
 
+# Create a router and register our viewsets with it.
+router = DefaultRouter()
+router.register(r'movements', views.MovementViewSet, base_name = "movement")
+router.register(r'sensors', views.SensorViewSet, base_name = "sensor")
+
+# The API URLs are now determined automatically by the router.
+# Additionally, we include the login URLs for the browsable API.
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^', include("app.urls"))
+    url(r'^', include(router.urls)),
+    url(r'^', include('rest_framework.urls', namespace='rest_framework'))
 ]
 
 urlpatterns += [
-    url(r'^api-auth/', include('rest_framework.urls',
-                               namespace='rest_framework')),
+    url(r'^admin/', admin.site.urls)
 ]
