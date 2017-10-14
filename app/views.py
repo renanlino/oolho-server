@@ -22,8 +22,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             xAxis = entry.occurrence_date.strftime("%d/%m %H:%M:%S")
             cumulative += numRevert[entry.direction]
             data.append([xAxis, cumulative])
-        yMin = min([entry[1] for entry in data])
-        yMax = max([entry[1] for entry in data])
         return render(request, self.template_name, locals())
 
     def get_queryset(self):
