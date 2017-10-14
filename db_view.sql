@@ -1,3 +1,3 @@
 SELECT *
 
-FROM app_movement
+FROM django_migrations

@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from app.models import Movement, Sensor
-from app.serializers import MovementSerializer, SensorSerializer
+from app.models import Movement, Sensor, Space
+from app.serializers import MovementSerializer, SensorSerializer, SpaceSerializer
 from rest_framework import permissions
 from app.permissions import IsOwnerOrReadOnly
 from rest_framework.exceptions import PermissionDenied
@@ -30,11 +30,20 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         return Movement.objects.filter(owner=user)
 
+class SpaceViewSet(viewsets.ModelViewSet):
+
+    serializer_class = SpaceSerializer
+    permission_classes = (permissions.IsAuthenticated,
+                          IsOwnerOrReadOnly,)
+
+    def get_queryset(self):
+        user = self.request.user
+        return Space.objects.filter(owner=user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 class SensorViewSet(viewsets.ModelViewSet):
-    """
-    This viewset automatically provides `list`, `create`, `retrieve`,
-    `update` and `destroy` actions.
-    """
 
     serializer_class = SensorSerializer
     permission_classes = (permissions.IsAuthenticated,
@@ -45,7 +54,11 @@ class SensorViewSet(viewsets.ModelViewSet):
         return Sensor.objects.filter(owner=user)
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        selectedSpace = Space.objects.get(pk=serializer.validated_data.get("space").id)
+        if selectedSpace.owner == self.request.user:
+            serializer.save(owner=self.request.user)
+        else:
+            raise PermissionDenied
 
 
 class MovementViewSet(viewsets.ModelViewSet):

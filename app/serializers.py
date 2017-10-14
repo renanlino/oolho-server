@@ -1,5 +1,15 @@
 from rest_framework import serializers
-from app.models import Movement, Sensor
+from app.models import Movement, Sensor, Space
+
+class SpaceSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    sensors = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    class Meta:
+        model = Space
+        fields = ('id', 'display_name', 'created_date',
+                'owner', 'sensors')
+
 
 class SensorSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')

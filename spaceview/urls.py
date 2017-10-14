@@ -22,6 +22,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r'movements', views.MovementViewSet, base_name = "movement")
 router.register(r'sensors', views.SensorViewSet, base_name = "sensor")
+router.register(r'spaces', views.SpaceViewSet, base_name = "space")
 
 # The API URLs are now determined automatically by the router.
 # Additionally, we include the login URLs for the browsable API.
