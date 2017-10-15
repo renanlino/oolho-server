@@ -25,7 +25,7 @@ SECRET_KEY = '%1=9^5oq7@@-6k87!(!!#r251uoq*7t)vpbx_5o$%jvtgg*6k&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["gentle-lake-67733.herokuapp.com", "localhost"]
+ALLOWED_HOSTS = ["adeusdentinho.herokuapp.com", "localhost"]
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
