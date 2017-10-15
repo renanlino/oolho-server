@@ -65,7 +65,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             #endDate = current_tz.localize(endDate)
         return startDate, endDate
 
-
     def get_queryset(self):
         user = self.request.user
         return Movement.objects.filter(owner=user)
@@ -93,7 +92,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         cumulative = 0
         for entry in query:
             xAxis = str(entry.occurrence_date)
-            cumulative += numRevert[entry.direction]
+            cumulative += numRevert[entry.direction] * entry.value
             data.append([xAxis, cumulative])
         return data
 

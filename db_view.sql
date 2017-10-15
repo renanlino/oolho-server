@@ -5,7 +5,7 @@ SELECT
   extract(hour from m.occurrence_date) as hour,
   --extract(minute from m.occurrence_date) as minute,
   direction,
-  count(m.id)
+  sum(m.value) as sum_value
 
 FROM app_movement m
 

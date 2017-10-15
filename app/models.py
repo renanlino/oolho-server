@@ -30,6 +30,7 @@ class Movement(models.Model):
             choices=[("IN", "Entrance"),("OUT", "Exit")])
     received_date = models.DateTimeField(default=timezone.now)
     occurrence_date = models.DateTimeField()
+    value = models.IntegerField(default=1)
 
     def __str__(self):
         s = "%d: %s @ %s (%d)" %(self.id, self.direction, self.sensor.display_name, self.sensor.id)

@@ -26,4 +26,4 @@ class MovementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movement
         fields = ('id', 'sensor', 'direction', 'received_date',
-            'occurrence_date', 'owner')
+            'occurrence_date', 'owner', 'value')
