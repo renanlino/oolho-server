@@ -5,17 +5,19 @@
 <nav class="col-sm-3 col-md-2 d-none d-sm-block bg-light sidebar">
   <ul class="nav nav-pills flex-column">
     <li class="nav-item">
-      <a class="nav-link active" href="#">Overview <span class="sr-only">(current)</span></a>
+      <a class="nav-link
+        {% if spaceToRender == None %} active {% endif %}"
+      href="/dashboard">Visão Geral
+      </a>
     </li>
+    {% for space in spaces %}
     <li class="nav-item">
-      <a class="nav-link" href="#">Reports</a>
+      <a class="nav-link
+        {% if spaceToRenderAsInt == space.id %} active {% endif %}"
+      href="/dashboard?space={{space.id}}">{{space.display_name}}
+      </a>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#">Analytics</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#">Export</a>
-    </li>
+    {% endfor %}
   </ul>
 
 </nav>
@@ -24,39 +26,78 @@
   <br>
   <h1>Dashboard</h1>
 
-  <div class="row center">
-    <div class="col-sm-12">
-      {% area_chart data %}
+  <div class="row">
+    <div class="col-sm-8 col-md-6" >
+      <div class="input-group input-daterange">
+        <input type="text" class="form-control input-picker" value="{{startDate_view}}" id="range-start">
+        <div class="input-group-addon">até</div>
+        <input type="text" class="form-control input-picker" value="{{endDate_view}}" id="range-end">
+        <input type="button" class="btn btn-primary" value="Filtrar" onclick="submitFilter()">
+      </div>
     </div>
   </div>
 
-  <h2>Section title</h2>
+  <script>
+    $('.input-picker').each(function() {
+      $(this).datepicker({
+        format: "dd/mm/yyyy",
+        startDate: "01/10/2017",
+        todayBtn: "linked",
+        language: "pt-BR",
+        keyboardNavigation: false,
+        forceParse: false,
+        todayHighlight: true
+      });
+    });
+  </script>
+
+  <script>
+    function getParameterByName(name, url) {
+      if (!url) url = window.location.href;
+      name = name.replace(/[\[\]]/g, "\\$&");
+      var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+          results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+    function submitFilter(){
+      var startDate = $('#range-start').val();
+      var endDate = $('#range-end').val();
+      var filter = { startDate:startDate, endDate:endDate,
+            space:getParameterByName("space")};
+      var str = jQuery.param( filter );
+      window.location.href = "?" + str;
+    }
+  </script>
+
+  <div class="row center">
+    <div class="col-sm-12">
+      <br>
+      {% area_chart cumulativeData %}
+    </div>
+  </div>
+
+  <h2>Sensores</h2>
   <div class="table-responsive">
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Header</th>
-          <th>Header</th>
-          <th>Header</th>
-          <th>Header</th>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Visto Por Último</th>
+          <th>Espaço</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>1,001</td>
-          <td>Lorem</td>
-          <td>ipsum</td>
-          <td>dolor</td>
-          <td>sit</td>
-        </tr>
-        <tr>
-          <td>1,002</td>
-          <td>amet</td>
-          <td>consectetur</td>
-          <td>adipiscing</td>
-          <td>elit</td>
-        </tr>
+        {% for sensor in sensors %}
+          <tr>
+            <td>{{sensor.id}}</td>
+            <td>{{sensor.display_name}}</td>
+            <td>{{sensor.last_seen}}</td>
+            <td>{{sensor.space.display_name}}</td>
+          </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>

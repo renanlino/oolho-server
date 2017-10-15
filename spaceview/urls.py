@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^api/', include(router.urls)),
     url(r'^dashboard/', views.DashboardView.as_view()),
     url(r'^accounts/', include('django.contrib.auth.urls')),
+    url(r'^$', views.HomeView),
 ]
 
 urlpatterns += [
