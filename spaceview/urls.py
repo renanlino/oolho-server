@@ -17,6 +17,8 @@ from django.contrib import admin
 from django.conf.urls import url, include
 from app import views
 from rest_framework.routers import DefaultRouter
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.views.generic.base import RedirectView
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
@@ -27,6 +29,13 @@ router.register(r'spaces', views.SpaceViewSet, base_name = "space")
 # The API URLs are now determined automatically by the router.
 # Additionally, we include the login URLs for the browsable API.
 urlpatterns = [
+    url(
+        r'^favicon.ico$',
+        RedirectView.as_view(
+            url=staticfiles_storage.url('favicon.ico'),
+            permanent=False),
+        name="favicon"
+    ),
     url(r'^api/', include(router.urls)),
     url(r'^dashboard/', views.DashboardView.as_view()),
     url(r'^accounts/', include('django.contrib.auth.urls')),

@@ -9,6 +9,8 @@ from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from datetime import datetime
+from django.http import Http404
+
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'app/dashboard.html'
@@ -32,13 +34,19 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         if spaceToRender is None:
             spaceToRenderAsInt = -1
+            currentSpaceName = "Visão Geral"
             cumulativeData = []
             return render(request, self.template_name, locals())
         else:
+            try:
+                currentSpaceName = Space.objects.get(pk=spaceToRender).display_name
+            except:
+                raise Http404("O espaço solicitado não existe.")
             query = self.getMovements(spaceToRender).filter(
                 occurrence_date__gte=startDate).filter(
                 occurrence_date__lte=endDate).order_by("occurrence_date")
             cumulativeData = self.generateCumulative(query)
+            self.applyOffset(cumulativeData)
             spaceToRenderAsInt = int(spaceToRender)
             return render(request, self.template_name, locals())
 
@@ -88,6 +96,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             cumulative += numRevert[entry.direction]
             data.append([xAxis, cumulative])
         return data
+
+    def applyOffset(self, data):
+        values = [i[1] for i in data]
+        if len(values) > 0 and min(values) < 0:
+            for i in range(len(data)):
+                data[i][1] += abs(min(values))
 
 class SpaceViewSet(viewsets.ModelViewSet):
 
