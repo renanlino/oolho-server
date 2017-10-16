@@ -10,6 +10,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from datetime import datetime
 from django.http import Http404
+import pandas as pd
+import numpy as np
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -19,11 +21,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     def get(self, request):
         startDate = request.GET.get('startDate', None )
         endDate = request.GET.get('endDate', None)
+        groupMode = request.GET.get('groupMode', "H")
         startDate, endDate = self.normalizeDates(startDate, endDate)
         startDate_view = startDate.strftime("%d/%m/%Y")
         endDate_view = endDate.strftime("%d/%m/%Y")
-        print(startDate)
-        print(endDate)
 
         spaceToRender = request.GET.get('space', None)
         if spaceToRender == '':
@@ -35,7 +36,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         if spaceToRender is None:
             spaceToRenderAsInt = -1
             currentSpaceName = "Visão Geral"
-            cumulativeData = []
+            pandaData = []
             return render(request, self.template_name, locals())
         else:
             try:
@@ -45,8 +46,22 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             query = self.getMovements(spaceToRender).filter(
                 occurrence_date__gte=startDate).filter(
                 occurrence_date__lte=endDate).order_by("occurrence_date")
-            cumulativeData = self.generateCumulative(query)
-            self.applyOffset(cumulativeData)
+            queryData = self.queryReader(query)
+            """print("Query:")
+            print(queryData)
+            print()"""
+            pandaData = self.pandify(queryData, groupMode)
+            """print("Pandify:")
+            print(pandaData)
+            print()"""
+            self.generateAccumulative(pandaData)
+            """print("Accumulative:")
+            print(pandaData)
+            print()"""
+            self.applyOffset(pandaData)
+            """print("Offset:")
+            print(pandaData)
+            print()"""
             spaceToRenderAsInt = int(spaceToRender)
             return render(request, self.template_name, locals())
 
@@ -62,7 +77,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         else:
             endDate = datetime.strptime(endDate, "%d/%m/%Y")
             endDate = endDate.replace(hour=23, minute=59, second=59, microsecond=59)
-            #endDate = current_tz.localize(endDate)
+            endDate = current_tz.localize(endDate)
         return startDate, endDate
 
     def get_queryset(self):
@@ -86,15 +101,31 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                     sensor__space = spaceToRender)
         return movements
 
-    def generateCumulative(self, query):
+    def queryReader(self, query):
         data = []
         numRevert = {"IN":1, "OUT":-1}
-        cumulative = 0
         for entry in query:
             xAxis = str(entry.occurrence_date)
-            cumulative += numRevert[entry.direction] * entry.value
-            data.append([xAxis, cumulative])
+            value = numRevert[entry.direction] * entry.value
+            data.append([xAxis, value])
         return data
+
+    def pandify(self, data, gmode):
+        dataf = pd.DataFrame(data)
+        dataf[0] = pd.to_datetime(dataf[0])
+        regroup = dataf.set_index(0).groupby(pd.Grouper(freq=gmode)).sum().to_records()
+        regroup.sort(axis=0)
+        regroup = regroup.tolist()
+        convRegroup = []
+        for entry in regroup:
+            convRegroup.append( [ str(entry[0]), entry[1] ] )
+        return convRegroup
+
+    def generateAccumulative(self, data):
+        accSum = 0
+        for i in range(len(data)):
+            accSum += data[i][1]
+            data[i][1] = accSum
 
     def applyOffset(self, data):
         values = [i[1] for i in data]

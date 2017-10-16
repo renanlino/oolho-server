@@ -28,12 +28,25 @@
   <h1>Dashboard</h1>
 
   <div class="row">
-    <div class="col-sm-8 col-md-6" >
+    <div class="col-sm-12" >
       <div class="input-group input-daterange">
+        <div class="input-group-addon">De</div>
         <input type="text" class="form-control input-picker" value="{{startDate_view}}" id="range-start">
         <div class="input-group-addon">até</div>
         <input type="text" class="form-control input-picker" value="{{endDate_view}}" id="range-end">
-        <input type="button" class="btn btn-primary" value="Filtrar" onclick="submitFilter()">
+        <div class="input-group-addon">agrupado por</div>
+        <select class="form-control" id="groupMode">
+          <option value="S" {% if groupMode == "S" %} selected="selected" {% endif %}>Segundo</option>
+          <option value="min" {% if groupMode == "min" %} selected="selected" {% endif %}>Minuto</option>
+          <option value="H" {% if groupMode == "H" %} selected="selected" {% endif %}>Hora</option>
+          <option value="D" {% if groupMode == "D" %} selected="selected" {% endif %}>Dia</option>
+          <option value="W" {% if groupMode == "W" %} selected="selected" {% endif %}>Semana</option>
+          <option value="M" {% if groupMode == "M" %} selected="selected" {% endif %}>Mês</option>
+          <option value="A" {% if groupMode == "A" %} selected="selected" {% endif %}>Ano</option>
+        </select>
+        <span class="input-group-btn">
+          <input type="button" class="btn btn-primary" value="Filtrar" onclick="submitFilter()">
+        </span>
       </div>
     </div>
   </div>
@@ -65,8 +78,10 @@
     function submitFilter(){
       var startDate = $('#range-start').val();
       var endDate = $('#range-end').val();
+      var groupMode = $('#groupMode').val();
       var filter = { startDate:startDate, endDate:endDate,
-            space:getParameterByName("space")};
+            space:getParameterByName("space"),
+            groupMode:groupMode};
       var str = jQuery.param( filter );
       window.location.href = "?" + str;
     }
@@ -75,7 +90,7 @@
   <div class="row center">
     <div class="col-sm-12">
       <br>
-      {% area_chart cumulativeData %}
+      {% area_chart pandaData %}
     </div>
   </div>
 
