@@ -121,7 +121,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             for entry in regroup:
                 convRegroup.append( [ str(entry[0]), entry[1] ] )
         else:
-            return None
+            return []
         return convRegroup
 
     def generateAccumulative(self, data):
