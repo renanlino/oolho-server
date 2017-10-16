@@ -29,13 +29,6 @@ router.register(r'spaces', views.SpaceViewSet, base_name = "space")
 # The API URLs are now determined automatically by the router.
 # Additionally, we include the login URLs for the browsable API.
 urlpatterns = [
-    url(
-        r'^favicon.ico$',
-        RedirectView.as_view(
-            url=staticfiles_storage.url('favicon.ico'),
-            permanent=False),
-        name="favicon"
-    ),
     url(r'^api/', include(router.urls)),
     url(r'^dashboard/', views.DashboardView.as_view()),
     url(r'^accounts/', include('django.contrib.auth.urls')),
