@@ -12,9 +12,9 @@ def main():
     baseTime = datetime.now()
     idSensor = int(input("Digite a ID do sensor: "))
     duration = int(input("Digite a duração máxima da simulação em minutos: "))
-    user = input("Digite o usuário (pythonfaker): ")
+    user = input("Digite o usuário (eletricademo): ")
     if user == '':
-        user = "pythonfaker"
+        user = "eletricademo"
     password = input("Digite a senha: ")
     if password == '':
         password = "140897hr"
@@ -39,7 +39,7 @@ def main():
     while baseTime < end:
         quantity = random.randint(-usersInside, usersInside + 1)
         for i in range(abs(quantity)):
-            timelapse = timedelta( seconds = random.randint(10, 120) )
+            timelapse = timedelta( seconds = random.randint(60, 5*60) )
             baseTime += timelapse
             occurrence_date = baseTime.strftime("%Y-%m-%dT%H:%M:%SZ")
             movement["occurrence_date"] = occurrence_date

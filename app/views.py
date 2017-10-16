@@ -112,13 +112,16 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def pandify(self, data, gmode):
         dataf = pd.DataFrame(data)
-        dataf[0] = pd.to_datetime(dataf[0])
-        regroup = dataf.set_index(0).groupby(pd.Grouper(freq=gmode)).sum().to_records()
-        regroup.sort(axis=0)
-        regroup = regroup.tolist()
-        convRegroup = []
-        for entry in regroup:
-            convRegroup.append( [ str(entry[0]), entry[1] ] )
+        if len(dataf) > 0:
+            dataf[0] = pd.to_datetime(dataf[0])
+            regroup = dataf.set_index(0).groupby(pd.Grouper(freq=gmode)).sum().to_records()
+            regroup.sort(axis=0)
+            regroup = regroup.tolist()
+            convRegroup = []
+            for entry in regroup:
+                convRegroup.append( [ str(entry[0]), entry[1] ] )
+        else:
+            return None
         return convRegroup
 
     def generateAccumulative(self, data):
