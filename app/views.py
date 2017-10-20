@@ -36,7 +36,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         if spaceToRender is None:
             spaceToRenderAsInt = -1
             currentSpaceName = "Visão Geral"
-            pandaData = []
+            accumulativePandaData = []
+            movementsSeries = {"Entradas":[], "Saídas":[]}
             return render(request, self.template_name, locals())
         else:
             try:
@@ -46,23 +47,31 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             query = self.getMovements(spaceToRender).filter(
                 occurrence_date__gte=startDate).filter(
                 occurrence_date__lte=endDate).order_by("occurrence_date")
+
             queryData = self.queryReader(query)
-            """print("Query:")
-            print(queryData)
-            print()"""
-            pandaData = self.pandify(queryData, groupMode)
-            """print("Pandify:")
-            print(pandaData)
-            print()"""
-            self.generateAccumulative(pandaData)
-            """print("Accumulative:")
-            print(pandaData)
-            print()"""
-            self.applyOffset(pandaData)
-            """print("Offset:")
-            print(pandaData)
-            print()"""
+
+            entrances = []
+            exits = []
+            for entry in queryData:
+                if entry[1] > 0:
+                    entrances.append(entry)
+                else:
+                    exits.append(entry)
+
+            accumulativePandaData = self.pandify(queryData, groupMode)
+            self.generateAccumulative(accumulativePandaData)
+            self.applyOffset(accumulativePandaData)
+
+            entrancePandaData = self.pandify(entrances, groupMode)
+            exitPandaData = self.pandify(exits, groupMode)
+
+            movementsSeries = [
+             {"name":"Entradas", "data":entrancePandaData},
+             {"name":"Saídas", "data":exitPandaData}
+            ]
+            
             spaceToRenderAsInt = int(spaceToRender)
+
             return render(request, self.template_name, locals())
 
     def normalizeDates(self, startDate, endDate):
