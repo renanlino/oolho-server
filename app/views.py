@@ -3,7 +3,7 @@ from app.models import Movement, Sensor, Space
 from app.serializers import MovementSerializer, SensorSerializer, SpaceSerializer, SpaceChartSerializer
 from rest_framework import permissions
 from app.permissions import IsOwnerOrReadOnly
-from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError, NotAuthenticated
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -69,6 +69,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 class SpaceChartView(APIView):
     serializer_class = SpaceChartSerializer
     pagination_class = None
+    permission_classes = (permissions.IsAuthenticated,
+                          IsOwnerOrReadOnly,)
 
     def get(self, request, pk):
         user = request.user
@@ -89,6 +91,8 @@ class SpaceChartView(APIView):
             return self.buildAccumulative(query, groupMode)
         elif chartType == "movements":
             return self.buildMovements(query, groupMode)
+        elif chartType == "inside":
+            return self.calculateInside()
         else:
             raise ValidationError("Tipo de gráfico ausente")
 
@@ -123,7 +127,10 @@ class SpaceChartView(APIView):
         return Response(accumulativePandaData)
 
     def calculateInside(self):
-        pass
+        query = Movement.objects.filter(owner=user,
+            sensor__space=pk).filter(
+            occurrence_date__gte=startDate).filter(
+            occurrence_date__lte=endDate).order_by("occurrence_date")
 
 class SpaceViewSet(viewsets.ModelViewSet):
 
