@@ -4,7 +4,51 @@
 {% block title %}{{currentSpaceName}}{% endblock %}
 {% block content %}
   <br>
-  <h1>{{currentSpaceName}}</h1>
+  <h1>{{currentSpaceName}}
+    <span id="connectionStatus"
+        style="font-size: 18px; color: red; vertical-align: middle">
+      <i class="fa fa-times-circle" aria-hidden="true"></i>
+    </span>
+  </h1>
+
+  <div class="row">
+    <div class="col-xs-4 col-md-2 col-xs-offset-4 col-md-offset-5">
+      <h5>Agora,</h5>
+      <h1 style="text-align: center; margin-bottom: 5px;
+          margin-top: 5px; font-size: 56px">
+          <b>
+            <span id="insideText">
+              <i class="fa fa-spinner fa-pulse fa-fw"></i>
+              <span class="sr-only">Loading...</span>
+            </span>
+          </b>
+      </h1>
+      <h5 style="text-align: right; margin-top: 0px;">pessoas no espaço</h5>
+    </div>
+  </div>
+
+  <script>
+    function loadPeopleInside() {
+      var peopleInside = $.get("{{insideEndpointURL}}", function( data ) {
+            $( "#insideText" ).html( data["inside"] );
+            var connStatus = $( "#connectionStatus" );
+            connStatus.html( '<i class="fa fa-check-circle" aria-hidden="true"></i>' );
+            connStatus.css('color', 'green');
+          }).fail(function() {
+              var connStatus = $( "#connectionStatus" );
+              connStatus.html( '<i class="fa fa-times-circle" aria-hidden="true"></i>' );
+              connStatus.css('color', 'red');
+            });
+    };
+    loadPeopleInside();
+    var timer = setInterval(loadPeopleInside, 60000);
+  </script>
+
+  <div class="row">
+    <div class="col-md-12">
+      <hr>
+    </div>
+  </div>
 
   {% if spaceToRenderAsInt != -1 %}
   <div class="row">
@@ -20,8 +64,8 @@
       <div class="input-group">
         <span class="input-group-addon">Agrupado por</span>
         <select class="form-control" id="groupMode">
-          <option value="S" {% if groupMode == "S" %} selected="selected" {% endif %}>Segundo</option>
-          <option value="min" {% if groupMode == "min" %} selected="selected" {% endif %}>Minuto</option>
+          <option value="S" disabled="true" {% if groupMode == "S" %} selected="selected" {% endif %}>Segundo</option>
+          <option value="min" disabled="true" {% if groupMode == "min" %} selected="selected" {% endif %}>Minuto</option>
           <option value="H" {% if groupMode == "H" %} selected="selected" {% endif %}>Hora</option>
           <option value="D" {% if groupMode == "D" %} selected="selected" {% endif %}>Dia</option>
           <option value="W" {% if groupMode == "W" %} selected="selected" {% endif %}>Semana</option>

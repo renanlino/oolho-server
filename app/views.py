@@ -37,6 +37,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ## Construção dinâmica das URLs
         baseAccumulativeEndpointURL = "/api/spaces/##SID##/chart?groupMode=##GMODE##&startDate=##SDATE##&endDate=##EDATE##&chartType=accumulative&format=json"
         baseMovementsEndpointURL = "/api/spaces/##SID##/chart?groupMode=##GMODE##&startDate=##SDATE##&endDate=##EDATE##&chartType=movements&format=json"
+        baseInsideEndpointURL = "/api/spaces/##SID##/chart?chartType=inside&format=json"
 
         accumulativeEndpointURL = baseAccumulativeEndpointURL.replace("##GMODE##", groupMode)
         accumulativeEndpointURL = accumulativeEndpointURL.replace("##SDATE##", startDate_view)
@@ -57,6 +58,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             sensors = sensors.filter(space=spaceToRender)
             accumulativeEndpointURL = accumulativeEndpointURL.replace("##SID##", spaceToRender)
             movementsEndpointURL = movementsEndpointURL.replace("##SID##", spaceToRender)
+            insideEndpointURL = baseInsideEndpointURL.replace("##SID##", spaceToRender)
             return render(request, self.template_name, locals())
         ## Renderiza visão geral
         else:
