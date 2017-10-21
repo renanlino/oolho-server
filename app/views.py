@@ -1,149 +1,114 @@
 from django.shortcuts import render, redirect
 from app.models import Movement, Sensor, Space
-from app.serializers import MovementSerializer, SensorSerializer, SpaceSerializer
+from app.serializers import MovementSerializer, SensorSerializer, SpaceSerializer, SpaceChartSerializer
 from rest_framework import permissions
 from app.permissions import IsOwnerOrReadOnly
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework import viewsets
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
-from datetime import datetime
 from django.http import Http404
-import pandas as pd
-import numpy as np
+import app.utils as utils
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'app/dashboard.html'
-    model = Movement
 
     def get(self, request):
-        startDate = request.GET.get('startDate', None )
-        endDate = request.GET.get('endDate', None)
+        ## Leitura parâmetros do GET:
+        startDate, endDate = utils.extractDates(request)
+        spaceToRender = request.GET.get('space', None)
         groupMode = request.GET.get('groupMode', "H")
-        startDate, endDate = self.normalizeDates(startDate, endDate)
+        user = self.request.user
+
+        ## Workaround de datas
+        startDate, endDate = utils.normalizeDates(startDate, endDate)
         startDate_view = startDate.strftime("%d/%m/%Y")
         endDate_view = endDate.strftime("%d/%m/%Y")
 
-        spaceToRender = request.GET.get('space', None)
         if spaceToRender == '':
             spaceToRender = None
-        spaces = self.getSpaces()
 
-        sensors = self.getSensors(spaceToRender)
+        ## Lista de spaces e sensors para menu e tabela:
+        spaces = Space.objects.filter(owner=user)
+        sensors = Sensor.objects.filter(owner=user)
 
-        if spaceToRender is None:
+        # TODO: construção dinâmica das URLs
+        accumulativeEndpointURL = "http://localhost:8000/api/spaces/4/chart?startDate=16%2F10%2F2017&endDate=18%2F10%2F2017&chartType=accumulative&format=json"
+        movementsEndpointURL = "http://localhost:8000/api/spaces/4/chart?startDate=16%2F10%2F2017&endDate=18%2F10%2F2017&chartType=movements&format=json"
+
+        ## Renderiza visão do espaço específico
+        if spaceToRender is not None:
+            sensors = sensors.filter(space=spaceToRender)
+            spaceToRenderAsInt = int(spaceToRender)
+            return render(request, self.template_name, locals())
+        ## Renderiza visão geral
+        else:
             spaceToRenderAsInt = -1
             currentSpaceName = "Visão Geral"
             accumulativePandaData = []
             movementsSeries = {"Entradas":[], "Saídas":[]}
             return render(request, self.template_name, locals())
+
+
+class SpaceChartView(APIView):
+    serializer_class = SpaceChartSerializer
+    pagination_class = None
+
+    def get(self, request, pk):
+        user = request.user
+        startDate, endDate = utils.extractDates(request)
+        startDate, endDate = utils.normalizeDates(startDate, endDate)
+        if startDate is None or endDate is None:
+            raise ValidationError("Parâmetro de data ausente")
+        groupMode = request.GET.get('groupMode', "H")
+
+        # TODO: não autenticado, pk nulo
+        query = Movement.objects.filter(owner=user,
+            sensor__space=pk).filter(
+            occurrence_date__gte=startDate).filter(
+            occurrence_date__lte=endDate).order_by("occurrence_date")
+
+        chartType = request.GET.get('chartType', None )
+        if chartType == "accumulative":
+            return self.buildAccumulative(query, groupMode)
+        elif chartType == "movements":
+            return self.buildMovements(query, groupMode)
         else:
-            try:
-                currentSpaceName = Space.objects.get(pk=spaceToRender).display_name
-            except:
-                raise Http404("O espaço solicitado não existe.")
-            query = self.getMovements(spaceToRender).filter(
-                occurrence_date__gte=startDate).filter(
-                occurrence_date__lte=endDate).order_by("occurrence_date")
+            raise ValidationError("Tipo de gráfico ausente")
 
-            queryData = self.queryReader(query)
+    def buildMovements(self, query, groupMode):
+        queryData = utils.queryReader(query)
 
-            entrances = []
-            exits = []
-            for entry in queryData:
-                if entry[1] > 0:
-                    entrances.append(entry)
-                else:
-                    exits.append(entry)
+        entrances = []
+        exits = []
+        for entry in queryData:
+            if entry[1] > 0:
+                entrances.append(entry)
+            else:
+                exits.append(entry)
 
-            accumulativePandaData = self.pandify(queryData, groupMode)
-            self.generateAccumulative(accumulativePandaData)
-            self.applyOffset(accumulativePandaData)
+        entrancePandaData = utils.pandify(entrances, groupMode)
+        exitPandaData = utils.pandify(exits, groupMode)
 
-            entrancePandaData = self.pandify(entrances, groupMode)
-            exitPandaData = self.pandify(exits, groupMode)
+        movementsSeries = [
+         {"name":"Entradas", "data":entrancePandaData},
+         {"name":"Saídas", "data":exitPandaData}
+        ]
 
-            movementsSeries = [
-             {"name":"Entradas", "data":entrancePandaData},
-             {"name":"Saídas", "data":exitPandaData}
-            ]
-            
-            spaceToRenderAsInt = int(spaceToRender)
+        return Response(movementsSeries)
 
-            return render(request, self.template_name, locals())
+    def buildAccumulative(self, query, groupMode):
+        queryData = utils.queryReader(query)
 
-    def normalizeDates(self, startDate, endDate):
-        current_tz = timezone.get_current_timezone()
-        if startDate is None:
-            startDate = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        else:
-            startDate = datetime.strptime(startDate, "%d/%m/%Y")
-            startDate = current_tz.localize(startDate)
-        if endDate is None:
-            endDate = timezone.now().replace(hour=23, minute=59, second=59, microsecond=59)
-        else:
-            endDate = datetime.strptime(endDate, "%d/%m/%Y")
-            endDate = endDate.replace(hour=23, minute=59, second=59, microsecond=59)
-            endDate = current_tz.localize(endDate)
-        return startDate, endDate
+        accumulativePandaData = utils.pandify(queryData, groupMode)
+        utils.generateAccumulative(accumulativePandaData)
+        utils.applyOffset(accumulativePandaData)
 
-    def get_queryset(self):
-        user = self.request.user
-        return Movement.objects.filter(owner=user)
-
-    def getSpaces(self):
-        user = self.request.user
-        return Space.objects.filter(owner=user)
-
-    def getSensors(self, spaceToRender):
-        user = self.request.user
-        if spaceToRender is not None:
-            return Sensor.objects.filter(owner=user, space=spaceToRender)
-        else:
-            return Sensor.objects.filter(owner=user)
-
-    def getMovements(self, spaceToRender):
-        user = self.request.user
-        movements = Movement.objects.filter(owner = user,
-                    sensor__space = spaceToRender)
-        return movements
-
-    def queryReader(self, query):
-        data = []
-        numRevert = {"IN":1, "OUT":-1}
-        for entry in query:
-            xAxis = str(entry.occurrence_date)
-            value = numRevert[entry.direction] * entry.value
-            data.append([xAxis, value])
-        return data
-
-    def pandify(self, data, gmode):
-        dataf = pd.DataFrame(data)
-        if len(dataf) > 0:
-            dataf[0] = pd.to_datetime(dataf[0])
-            regroup = dataf.set_index(0).groupby(pd.Grouper(freq=gmode)).sum().to_records()
-            regroup.sort(axis=0)
-            regroup = regroup.tolist()
-            convRegroup = []
-            for entry in regroup:
-                convRegroup.append( [ str(entry[0]), entry[1] ] )
-        else:
-            return []
-        return convRegroup
-
-    def generateAccumulative(self, data):
-        accSum = 0
-        for i in range(len(data)):
-            accSum += data[i][1]
-            data[i][1] = accSum
-
-    def applyOffset(self, data):
-        values = [i[1] for i in data]
-        if len(values) > 0 and min(values) < 0:
-            for i in range(len(data)):
-                data[i][1] += abs(min(values))
+        return Response(accumulativePandaData)
 
 class SpaceViewSet(viewsets.ModelViewSet):
 

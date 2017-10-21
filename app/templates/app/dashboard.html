@@ -90,14 +90,14 @@
   <div class="row center">
     <div class="col-sm-12">
       <br>
-      {% area_chart accumulativePandaData with colors=["#0288d1", "#d32f2f"] title='Número de pessoas no ambiente' legend='top' %}
+      {% area_chart accumulativeEndpointURL with refresh=60 colors=["#0288d1", "#d32f2f"] title='Número de pessoas no ambiente' legend='top' %}
     </div>
   </div>
 
   <div class="row center">
     <div class="col-sm-12">
       <br>
-      {% column_chart movementsSeries with stacked=True colors=["#0288d1", "#d32f2f"] height='600px'%}
+      {% column_chart movementsEndpointURL with refresh=60 stacked=True colors=["#0288d1", "#d32f2f"] height='600px'%}
     </div>
   </div>
 

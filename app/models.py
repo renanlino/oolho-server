@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils import timezone
 
-
 class Space(models.Model):
     owner = models.ForeignKey('auth.User', related_name='spaces', on_delete=models.CASCADE)
     display_name = models.CharField(max_length=200)
@@ -12,9 +11,12 @@ class Space(models.Model):
         s = "%d: %s (%s)" %(self.id, self.display_name, self.owner)
         return s
 
+    def getAccumulative():
+        pass
+
 class Sensor(models.Model):
     owner = models.ForeignKey('auth.User', related_name='sensors', on_delete=models.CASCADE)
-    space = models.ForeignKey('Space', related_name='spaces', on_delete=models.CASCADE)
+    space = models.ForeignKey('Space', related_name='sensors', on_delete=models.CASCADE)
     display_name = models.CharField(max_length=200)
     created_date = models.DateTimeField( blank=True, default=timezone.now)
     last_seen = models.DateTimeField(blank=True, null=True)

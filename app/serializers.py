@@ -10,6 +10,8 @@ class SpaceSerializer(serializers.ModelSerializer):
         fields = ('id', 'display_name', 'created_date',
                 'owner', 'sensors')
 
+class SpaceChartSerializer(serializers.Serializer):
+    response = serializers.BooleanField()
 
 class SensorSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')

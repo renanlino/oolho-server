@@ -30,6 +30,7 @@ router.register(r'spaces', views.SpaceViewSet, base_name = "space")
 # Additionally, we include the login URLs for the browsable API.
 urlpatterns = [
     url(r'^api/', include(router.urls)),
+    url(r'^api/spaces/(?P<pk>\d+)/chart$', views.SpaceChartView.as_view()),
     url(r'^dashboard/', views.DashboardView.as_view()),
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^$', views.HomeView),
