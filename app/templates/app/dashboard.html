@@ -7,7 +7,7 @@
   <ul class="nav nav-pills flex-column">
     <li class="nav-item">
       <a class="nav-link
-        {% if spaceToRender == None %} active {% endif %}"
+        {% if spaceToRenderAsInt == -1 %} active {% endif %}"
       href="/dashboard">Visão Geral
       </a>
     </li>
@@ -27,6 +27,7 @@
   <br>
   <h1>Dashboard</h1>
 
+  {% if spaceToRenderAsInt != -1 %}
   <div class="row">
     <div class="col-sm-12" >
       <div class="input-group input-daterange">
@@ -90,16 +91,18 @@
   <div class="row center">
     <div class="col-sm-12">
       <br>
-      {% area_chart accumulativeEndpointURL with refresh=60 colors=["#0288d1", "#d32f2f"] title='Número de pessoas no ambiente' legend='top' %}
+      {% area_chart accumulativeEndpointURL with refresh=60 colors=["#0288d1", "#d32f2f"] height='400px' title='Histórico de pessoas no espaço' %}
     </div>
   </div>
 
   <div class="row center">
     <div class="col-sm-12">
       <br>
-      {% column_chart movementsEndpointURL with refresh=60 stacked=True colors=["#0288d1", "#d32f2f"] height='600px'%}
+      {% column_chart movementsEndpointURL with refresh=60 stacked=True colors=["#0288d1", "#d32f2f"] height='600px' legend='top' %}
     </div>
   </div>
+
+  {% endif %}
 
   <h2>Sensores</h2>
   <div class="table-responsive">

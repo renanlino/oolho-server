@@ -29,28 +29,36 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         startDate_view = startDate.strftime("%d/%m/%Y")
         endDate_view = endDate.strftime("%d/%m/%Y")
 
-        if spaceToRender == '':
-            spaceToRender = None
-
         ## Lista de spaces e sensors para menu e tabela:
         spaces = Space.objects.filter(owner=user)
         sensors = Sensor.objects.filter(owner=user)
 
-        # TODO: construção dinâmica das URLs
-        accumulativeEndpointURL = "http://localhost:8000/api/spaces/4/chart?startDate=16%2F10%2F2017&endDate=18%2F10%2F2017&chartType=accumulative&format=json"
-        movementsEndpointURL = "http://localhost:8000/api/spaces/4/chart?startDate=16%2F10%2F2017&endDate=18%2F10%2F2017&chartType=movements&format=json"
+        ## Construção dinâmica das URLs
+        baseAccumulativeEndpointURL = "http://localhost:8000/api/spaces/##SID##/chart?groupMode=##GMODE##&startDate=##SDATE##&endDate=##EDATE##&chartType=accumulative&format=json"
+        baseMovementsEndpointURL = "http://localhost:8000/api/spaces/##SID##/chart?groupMode=##GMODE##&startDate=##SDATE##&endDate=##EDATE##&chartType=movements&format=json"
+
+        accumulativeEndpointURL = baseAccumulativeEndpointURL.replace("##GMODE##", groupMode)
+        accumulativeEndpointURL = accumulativeEndpointURL.replace("##SDATE##", startDate_view)
+        accumulativeEndpointURL = accumulativeEndpointURL.replace("##EDATE##", endDate_view)
+
+        movementsEndpointURL = baseMovementsEndpointURL.replace("##GMODE##", groupMode)
+        movementsEndpointURL = movementsEndpointURL.replace("##SDATE##", startDate_view)
+        movementsEndpointURL = movementsEndpointURL.replace("##EDATE##", endDate_view)
 
         ## Renderiza visão do espaço específico
         if spaceToRender is not None:
-            sensors = sensors.filter(space=spaceToRender)
             spaceToRenderAsInt = int(spaceToRender)
+            currentSpaceName = Space.objects.get(pk=spaceToRender, owner=user).display_name
+            sensors = sensors.filter(space=spaceToRender)
+            accumulativeEndpointURL = accumulativeEndpointURL.replace("##SID##", spaceToRender)
+            movementsEndpointURL = movementsEndpointURL.replace("##SID##", spaceToRender)
             return render(request, self.template_name, locals())
         ## Renderiza visão geral
         else:
             spaceToRenderAsInt = -1
             currentSpaceName = "Visão Geral"
-            accumulativePandaData = []
-            movementsSeries = {"Entradas":[], "Saídas":[]}
+            accumulativeEndpointURL = accumulativeEndpointURL.replace("##SID##", "")
+            movementsEndpointURL = movementsEndpointURL.replace("##SID##", "")
             return render(request, self.template_name, locals())
 
 
