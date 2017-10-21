@@ -47,8 +47,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         ## Renderiza visão do espaço específico
         if spaceToRender is not None:
+            try:
+                currentSpaceName = Space.objects.get(pk=spaceToRender, owner=user).display_name
+            except Space.DoesNotExist:
+                currentSpaceName = "Erro"
+                return render(request, "app/not_found.html", locals())
             spaceToRenderAsInt = int(spaceToRender)
-            currentSpaceName = Space.objects.get(pk=spaceToRender, owner=user).display_name
             sensors = sensors.filter(space=spaceToRender)
             accumulativeEndpointURL = accumulativeEndpointURL.replace("##SID##", spaceToRender)
             movementsEndpointURL = movementsEndpointURL.replace("##SID##", spaceToRender)
@@ -117,6 +121,9 @@ class SpaceChartView(APIView):
         utils.applyOffset(accumulativePandaData)
 
         return Response(accumulativePandaData)
+
+    def calculateInside(self):
+        pass
 
 class SpaceViewSet(viewsets.ModelViewSet):
 
