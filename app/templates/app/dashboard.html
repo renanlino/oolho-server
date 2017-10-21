@@ -5,12 +5,15 @@
 {% block content %}
   <br>
   <h1>{{currentSpaceName}}
-    <span id="connectionStatus"
-        style="font-size: 18px; color: red; vertical-align: middle">
-      <i class="fa fa-times-circle" aria-hidden="true"></i>
-    </span>
+    {% if spaceToRenderAsInt != -1 %}
+      <span id="connectionStatus"
+          style="font-size: 18px; color: red; vertical-align: middle">
+        <i class="fa fa-times-circle" aria-hidden="true"></i>
+      </span>
+    {% endif %}
   </h1>
 
+  {% if spaceToRenderAsInt != -1 %}
   <div class="row">
     <div class="col-xs-4 col-md-2 col-xs-offset-4 col-md-offset-5">
       <h5>Agora,</h5>
@@ -50,7 +53,6 @@
     </div>
   </div>
 
-  {% if spaceToRenderAsInt != -1 %}
   <div class="row">
     <div class="col-xs-12 col-md-6" style="margin-top: 15px;">
       <div class="input-group input-daterange">

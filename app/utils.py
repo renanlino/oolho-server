@@ -24,9 +24,11 @@ def normalizeDates(startDate, endDate):
         endDate = current_tz.localize(endDate)
     return startDate, endDate
 
-def queryReader(query):
+def queryReader(query, startDate=None, offset=None):
     data = []
     numRevert = {"IN":1, "OUT":-1}
+    if startDate is not None and offset is not None:
+        data.append([ str(startDate), offset])
     for entry in query:
         xAxis = str(entry.occurrence_date)
         value = numRevert[entry.direction] * entry.value

@@ -79,7 +79,7 @@ class SpaceChartView(APIView):
         user = request.user
         chartType = request.GET.get('chartType', None )
         if chartType == "inside":
-            return self.calculateInside(pk, user)
+            return Response(self.calculateInside(pk, user))
         else:
             startDate, endDate = utils.extractDates(request)
             if startDate is None or endDate is None:
@@ -93,9 +93,11 @@ class SpaceChartView(APIView):
                 occurrence_date__lte=endDate).order_by("occurrence_date")
 
             if chartType == "accumulative":
-                return self.buildAccumulative(query, groupMode)
+                initialOffset = self.calculateInside(pk, user, until=startDate)["inside"]
+                return Response(self.buildAccumulative(query, groupMode,
+                                    startDate, endDate, initialOffset))
             elif chartType == "movements":
-                return self.buildMovements(query, groupMode)
+                return Response(self.buildMovements(query, groupMode))
             else:
                 raise ValidationError("Tipo de gráfico ausente")
 
@@ -113,32 +115,38 @@ class SpaceChartView(APIView):
         entrancePandaData = utils.pandify(entrances, groupMode)
         exitPandaData = utils.pandify(exits, groupMode)
 
+        if len(entrancePandaData) == 0 and len(exitPandaData) == 0:
+            entrancePandaData.append(["0", 0])
+            exitPandaData.append(["0", 0])
+
         movementsSeries = [
          {"name":"Entradas", "data":entrancePandaData},
          {"name":"Saídas", "data":exitPandaData}
         ]
 
-        return Response(movementsSeries)
+        return movementsSeries
 
-    def buildAccumulative(self, query, groupMode):
-        queryData = utils.queryReader(query)
+    def buildAccumulative(self, query, groupMode, startDate=None, endDate=None, offset=0):
+        queryData = utils.queryReader(query, startDate, offset)
 
         accumulativePandaData = utils.pandify(queryData, groupMode)
         utils.generateAccumulative(accumulativePandaData)
         utils.applyOffset(accumulativePandaData)
 
-        return Response(accumulativePandaData)
+        return accumulativePandaData
 
-    def calculateInside(self, pk, user):
-        query = Movement.objects.filter(sensor__space=pk, owner=user).values(
-                "direction").annotate(Sum("value"))
+    def calculateInside(self, pk, user, until=None):
+        query = Movement.objects.filter(sensor__space=pk, owner=user)
+        if until is not None:
+            query = query.filter(occurrence_date__lt=until)
+        query = query.values("direction").annotate(Sum("value"))
         accumulative = 0
         for entry in query:
             if entry["direction"] == 'IN':
                 accumulative += entry["value__sum"]
             else:
                 accumulative -= entry["value__sum"]
-        return Response({"inside":accumulative})
+        return {"inside":accumulative}
 
 
 class SpaceViewSet(viewsets.ModelViewSet):
