@@ -63,7 +63,7 @@ Número atual de pessoas dentro do espaço.
 
 ## Autenticação na API ##
 
-A API usa autenticação HTTP básica, passando usuário e senha pelo cabeçalho "Authentication". [Exemplo para ESP8166](https://github.com/esp8266/Arduino/blob/master/libraries/ESP8266WebServer/examples/HttpBasicAuth/HttpBasicAuth.ino).
+A API usa autenticação HTTP básica, passando usuário e senha pelo cabeçalho "Authentication". [Exemplo para ESP8266](https://github.com/esp8266/Arduino/blob/master/libraries/ESP8266WebServer/examples/HttpBasicAuth/HttpBasicAuth.ino).
 
 ## Fake Sensor ##
 
