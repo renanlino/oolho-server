@@ -7,6 +7,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError, NotAuth
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.db.models import Sum
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
@@ -92,7 +93,7 @@ class SpaceChartView(APIView):
         elif chartType == "movements":
             return self.buildMovements(query, groupMode)
         elif chartType == "inside":
-            return self.calculateInside()
+            return self.calculateInside(pk, user)
         else:
             raise ValidationError("Tipo de gráfico ausente")
 
@@ -126,11 +127,17 @@ class SpaceChartView(APIView):
 
         return Response(accumulativePandaData)
 
-    def calculateInside(self):
-        query = Movement.objects.filter(owner=user,
-            sensor__space=pk).filter(
-            occurrence_date__gte=startDate).filter(
-            occurrence_date__lte=endDate).order_by("occurrence_date")
+    def calculateInside(self, pk, user):
+        query = Movement.objects.filter(sensor__space=pk, owner=user).values(
+                "direction").annotate(Sum("value"))
+        accumulative = 0
+        for entry in query:
+            if entry["direction"] == 'IN':
+                accumulative += entry["value__sum"]
+            else:
+                accumulative -= entry["value__sum"]
+        return Response({"inside":accumulative})
+
 
 class SpaceViewSet(viewsets.ModelViewSet):
 
