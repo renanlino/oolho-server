@@ -31,7 +31,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         ## Lista de spaces e sensors para menu e tabela:
         spaces = Space.objects.filter(owner=user)
-        sensors = Sensor.objects.filter(owner=user)
+        sensors = Sensor.objects.filter(owner=user).order_by("id")
 
         ## Construção dinâmica das URLs
         baseAccumulativeEndpointURL = "/api/spaces/##SID##/chart?groupMode=##GMODE##&startDate=##SDATE##&endDate=##EDATE##&chartType=accumulative&format=json"

@@ -17,8 +17,8 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js" integrity="sha256-TueWqYu0G+lYIimeIcMI8x1m14QH/DQVt4s9m/uuhPw=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/locales/bootstrap-datepicker.pt-BR.min.js" integrity="sha256-QN6KDU+9DIJ/9M0ynQQfw/O90ef0UXucGgKn0LbUtq4=" crossorigin="anonymous"></script>
@@ -27,42 +27,115 @@
   <script src="https://code.highcharts.com/highcharts.js"></script>
   <script src="/static/app/chartkick.js"></script>
 
+  <script src="https://use.fontawesome.com/6b89c09453.js"></script>
+
   <link rel="stylesheet" type="text/css" href="{% static 'app/dashboard.css' %}" />
+
+  <script>
+    $(document).ready(function () {
+      var trigger = $('.hamburger'),
+      overlay = $('.overlay'),
+      isClosed = false;
+
+      trigger.click(function () {
+        hamburger_cross();
+      });
+
+      function hamburger_cross() {
+
+        if (isClosed == true) {
+          overlay.hide();
+          trigger.removeClass('is-open');
+          trigger.addClass('is-closed');
+          isClosed = false;
+        } else {
+          overlay.show();
+          trigger.removeClass('is-closed');
+          trigger.addClass('is-open');
+          isClosed = true;
+        }
+      }
+
+      $('[data-toggle="offcanvas"]').click(function () {
+        $('#wrapper').toggleClass('toggled');
+      });
+    });
+  </script>
 
   <!-- TODO: bloco de título não funciona -->
   <title>{% block title %}{% endblock %} | Adeus, Dentinho</title>
 </head>
 <body>
+  <div id="wrapper">
+    <div class="overlay"></div>
 
-  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="#">Adeus, Dentinho</a>
-      <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-          <ul class="navbar-nav mr-auto">
-            <!--
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-            </li>
-            -->
+    <!-- Sidebar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" id="sidebar-wrapper" role="navigation">
+      <ul class="nav sidebar-nav">
+        <li class="sidebar-brand">
+          <a href="#">
+            Adeus, Dentinho
+          </a>
+        </li>
+        <li>
+          <a href="/dashboard"><i class="fa fa-area-chart" aria-hidden="true"></i> Dashboard</a>
+        </li>
+        <li>
+          <a href="/api"><i class="fa fa-code" aria-hidden="true"></i> API</a>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-map-marker" aria-hidden="true"></i> Meus Espaços <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu" role="menu">
+            <li class="dropdown-header"></li>
+            {% for space in spaces %}
+              <li>
+                <a href="/dashboard?space={{space.id}}">{{space.display_name}}</a>
+              </li>
+            {% endfor %}
           </ul>
-        <span class="navbar-text">
-          {% if user.is_authenticated %}
-            Bem-vindo, <strong>{{user.get_username}}</strong> | <a class="navbar-text" href="/accounts/logout">Sair</a>
-          {% else %}
-            Bem-vindo, <strong>anônimo</strong> | <a class="navbar-text" href="/accounts/login">Entrar</a>
-          {% endif %}
-        </span>
-      </div>
-    </nav>
+        </li>
 
-    <div class="container-fluid">
-      <div class="row">
-        {% block content %}
-        {% endblock %}
+        <li style="margin-top: 40px;">
+          <a href="#" style="pointer-events: none; cursor: default;">
+            {% if user.is_authenticated %}
+              <i class="fa fa-user-circle" aria-hidden="true"></i> {{user.username}}
+            {% else %}
+              <i class="fa fa-user-secret" aria-hidden="true"></i> Anônimo
+            {% endif %}
+          </a>
+        </li>
+        <li>
+          {% if user.is_authenticated %}
+            <a href="/accounts/logout"> <i class="fa fa-sign-out" aria-hidden="true"></i> Sair</a>
+          {% else %}
+            <a href="/accounts/login"><i class="fa fa-sign-in" aria-hidden="true"></i> Entrar</a>
+          {% endif %}
+        </li>
+      </ul>
+    </nav>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+      <button type="button" class="hamburger is-closed" data-toggle="offcanvas">
+        <span class="hamb-top"></span>
+        <span class="hamb-middle"></span>
+        <span class="hamb-bottom"></span>
+      </button>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 col-lg-offset-1">
+            {% block content %}
+            {% endblock %}
+          </div>
+        </div>
       </div>
     </div>
+    <!-- /#page-content-wrapper -->
+
+  </div>
+  <!-- /#wrapper -->
 </body>
 </html>
