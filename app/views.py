@@ -75,27 +75,27 @@ class SpaceChartView(APIView):
 
     def get(self, request, pk):
         user = request.user
-        startDate, endDate = utils.extractDates(request)
-        startDate, endDate = utils.normalizeDates(startDate, endDate)
-        if startDate is None or endDate is None:
-            raise ValidationError("Parâmetro de data ausente")
-        groupMode = request.GET.get('groupMode', "H")
-
-        # TODO: não autenticado, pk nulo
-        query = Movement.objects.filter(owner=user,
-            sensor__space=pk).filter(
-            occurrence_date__gte=startDate).filter(
-            occurrence_date__lte=endDate).order_by("occurrence_date")
-
         chartType = request.GET.get('chartType', None )
-        if chartType == "accumulative":
-            return self.buildAccumulative(query, groupMode)
-        elif chartType == "movements":
-            return self.buildMovements(query, groupMode)
-        elif chartType == "inside":
+        if chartType == "inside":
             return self.calculateInside(pk, user)
         else:
-            raise ValidationError("Tipo de gráfico ausente")
+            startDate, endDate = utils.extractDates(request)
+            if startDate is None or endDate is None:
+                raise ValidationError("Parâmetro de data ausente")
+            startDate, endDate = utils.normalizeDates(startDate, endDate)
+            groupMode = request.GET.get('groupMode', "H")
+
+            query = Movement.objects.filter(owner=user,
+                sensor__space=pk).filter(
+                occurrence_date__gte=startDate).filter(
+                occurrence_date__lte=endDate).order_by("occurrence_date")
+
+            if chartType == "accumulative":
+                return self.buildAccumulative(query, groupMode)
+            elif chartType == "movements":
+                return self.buildMovements(query, groupMode)
+            else:
+                raise ValidationError("Tipo de gráfico ausente")
 
     def buildMovements(self, query, groupMode):
         queryData = utils.queryReader(query)
