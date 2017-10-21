@@ -34,8 +34,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         sensors = Sensor.objects.filter(owner=user)
 
         ## Construção dinâmica das URLs
-        baseAccumulativeEndpointURL = "https://adeusdentinho.herokuapp.com/api/spaces/##SID##/chart?groupMode=##GMODE##&startDate=##SDATE##&endDate=##EDATE##&chartType=accumulative&format=json"
-        baseMovementsEndpointURL = "https://adeusdentinho.herokuapp.com/api/spaces/##SID##/chart?groupMode=##GMODE##&startDate=##SDATE##&endDate=##EDATE##&chartType=movements&format=json"
+        baseAccumulativeEndpointURL = "/api/spaces/##SID##/chart?groupMode=##GMODE##&startDate=##SDATE##&endDate=##EDATE##&chartType=accumulative&format=json"
+        baseMovementsEndpointURL = "/api/spaces/##SID##/chart?groupMode=##GMODE##&startDate=##SDATE##&endDate=##EDATE##&chartType=movements&format=json"
 
         accumulativeEndpointURL = baseAccumulativeEndpointURL.replace("##GMODE##", groupMode)
         accumulativeEndpointURL = accumulativeEndpointURL.replace("##SDATE##", startDate_view)
