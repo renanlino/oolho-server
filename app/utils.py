@@ -53,6 +53,11 @@ def pandify(data, gmode):
         return []
     return convRegroup
 
+def reformatDate(data):
+    for i in range(len(data)):
+        originalDate = datetime.strptime(data[i][0], "%Y-%m-%d %H:%M:%S")
+        data[i][0] = originalDate.strftime("%d/%m %Hh")
+
 def generateAccumulative(data):
     accSum = 0
     for i in range(len(data)):

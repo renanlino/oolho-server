@@ -113,7 +113,9 @@ class SpaceChartView(APIView):
                 exits.append(entry)
 
         entrancePandaData = utils.pandify(entrances, groupMode)
+        utils.reformatDate(entrancePandaData)
         exitPandaData = utils.pandify(exits, groupMode)
+        utils.reformatDate(exitPandaData)
 
         if len(entrancePandaData) == 0 and len(exitPandaData) == 0:
             entrancePandaData.append(["0", 0])
