@@ -35,7 +35,7 @@ Os sensores emitem Movements, que representam as detecções de entradas e saíd
 
 Endpoint dos Spaces para geração de gráficos.
 
-- /api/spaces/<ID DO SPACE>/chart?chartType=<TIPO DO GRÁFICO>
+- /api/spaces/ID DO SPACE/chart?chartType=TIPO DO GRÁFICO
 
 ### Tipos e campos de request ###
 
