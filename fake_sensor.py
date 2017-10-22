@@ -11,7 +11,7 @@ def main():
     usersInside = 0
     baseTime = datetime.now()
     idSensor = int(input("Digite a ID do sensor: "))
-    duration = int(input("Digite a duração máxima da simulação em minutos: "))
+    duration = int(input("Digite a duração máxima da simulação em horas: "))
     user = input("Digite o usuário (eletricademo): ")
     if user == '':
         user = "eletricademo"
@@ -34,22 +34,22 @@ def main():
         "received_date": None,
         "occurrence_date": None
     }
-    maxTime = timedelta(minutes=duration)
+    maxTime = timedelta(hours=duration)
     end = baseTime + maxTime
     while baseTime < end:
         quantity = random.randint(-usersInside, usersInside + 1)
-        for i in range(abs(quantity)):
-            timelapse = timedelta( seconds = random.randint(60, 5*60) )
+        if quantity != 0:
+            timelapse = timedelta( minutes = random.randint(15, 45) )
             baseTime += timelapse
             occurrence_date = baseTime.strftime("%Y-%m-%dT%H:%M:%SZ")
             movement["occurrence_date"] = occurrence_date
+            movement["value"] = abs(quantity)
             direction = abs(quantity)/quantity
             if direction == -1:
                 movement["direction"] = "OUT"
             else:
                 movement["direction"] = "IN"
-
-            usersInside += direction
+            usersInside += quantity
             print("%s\t %s \t(%d users inside)" %(movement["occurrence_date"],
                     movement["direction"], usersInside))
             response = requests.post(URL,
