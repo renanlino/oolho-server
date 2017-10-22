@@ -148,6 +148,8 @@ class SpaceChartView(APIView):
                 accumulative += entry["value__sum"]
             else:
                 accumulative -= entry["value__sum"]
+        if accumulative < 0:
+            accumulative = 0
         return {"inside":accumulative}
 
 
