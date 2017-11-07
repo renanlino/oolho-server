@@ -4,7 +4,7 @@ from requests.auth import HTTPBasicAuth
 import sys
 from datetime import datetime, timedelta
 
-PROD = "https://adeusdentinho.herokuapp.com/api/movements/?format=json"
+PROD = "https://oolho.herokuapp.com/api/movements/?format=json"
 LOCAL = "http://localhost:8000/api/movements/?format=json"
 
 def main():
