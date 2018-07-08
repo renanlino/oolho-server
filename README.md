@@ -1,5 +1,7 @@
 # Rede de Sensores de Presença Distribuídos #
 
+Confira o vídeo da apresentação do projeto no [YouTube](https://youtu.be/fuPidej-O7c).
+
 ## Dashboard, API e Admin da rede de sensores ##
 
 Projeto Django para a operação server-side
